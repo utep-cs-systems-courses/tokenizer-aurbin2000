@@ -1,81 +1,97 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "history.h"
-#include "tokenizer.h"
-
-int id_tracker = 1;
 
 List *init_history()
 {
   List *history = (List *)malloc(sizeof(List));
-  history->root = NULL;
+  if(history)
+    {
+      history->root = NULL;
+    }
   return history;
-}
-
-int str_length(const char *str)
-{
-  int length = 0;
-  while(str[length] != '\0')
-    {
-      length++;
-    }
-  return length;
-}
-
-char *str_duplicate(const char *str)
-{
-  int length = str_length(str);
-  char *duplicate = (char *)malloc((length + 1) * sizeof(char));
-  for(int i = 0; i <= length; i++)
-    {
-      duplicate[i] = str[i];
-    }
-  return duplicate;
 }
 
 void add_history(List *list, char *str)
 {
-  Item *current;
-  current = list->root;
+  if(!list)
+    {
+      return;
+    }
+  
+  Item *current = list->root;
 
-  if(list->root == NULL)
+  if(!list->root)
     {
       list->root = (Item *)malloc(sizeof(Item));
-      list->root->id = id_tracker++;
-      int length = str_length(str);
-      list->root->str = (char *)malloc((length + 1) * sizeof(char));
-
-      for(int i = 0; i <=length; i++)
+      if(list->root)
 	{
-	  list->root->str[i] = str[i];
+	  list->root->id = 1;
+	  int length = 0;
+	  while(str[length] != '\0')
+	    {
+	      length++;
+	    }
+	  list->root->str = (char *)malloc((length + 1) * sizeof(char));
+	  
+	  if(list->root->str)
+	    {
+	      for(int i = 0; i<= length; i++)
+		{
+		  list->root->str[i] = str[i];
+		}
+	      list->root->next = NULL;
+	    }
+	  else
+	    {
+	      free(list->root);
+	      list->root = NULL;
+	    }
 	}
-
-      list->root->next = NULL;
     }
   else
     {
-      while(current->next != NULL)
+      while(current->next)
 	{
 	  current = current->next;
 	}
       current->next = (Item *)malloc(sizeof(Item));
-      current->next->id = id_tracker;
-      int length = str_length(str);
-      current->next->str = (char *)malloc((length + 1) * sizeof(char));
-
-      for(int i = 0; i <= length; i++)
+      if(current->next)
 	{
-	  current->next->str[i] = str[i];
+	  current->next->id = current->id + 1;
+	  int length = 0;
+	  while(str[length] != '\0')
+	    {
+	      length++;
+	    }
+	  current->next->str = (char *)malloc((length + 1) * sizeof(char));
+
+	  if(current->next->str)
+	    {
+	      for(int i = 0; i<= length; i++)
+		{
+		  current->next->str[i] = str[i];
+		}
+	      current->next->next = NULL;
+	    }
+	  else
+	    {
+	      free(current->next);
+	      current->next=NULL;
+	    }
 	}
-      
-      current->next->next = NULL;
     }
 }
 
 char *get_history(List *list, int id)
 {
+  if(!list)
+    {
+      return NULL;
+    }
+  
   Item *current = list->root;
-  while(current != NULL)
+  while(current)
     {
       if(current->id == id)
 	{
@@ -88,8 +104,13 @@ char *get_history(List *list, int id)
 
 void print_history(List *list)
 {
+  if(!list)
+    {
+      return;
+    }
+  
   Item *current = list->root;
-  while(current != NULL)
+  while(current)
     {
       printf("%d.- %s\n", current->id, current->str);
       current = current->next;
@@ -98,8 +119,13 @@ void print_history(List *list)
 
 void free_history(List *list)
 {
+  if(!list)
+    {
+      return;
+    }
+  
   Item *current = list->root;
-  while(current != NULL)
+  while(current)
     {
       Item *temp = current;
       current = current->next;

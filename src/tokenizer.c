@@ -55,11 +55,15 @@ int count_tokens(char *str)
 char *copy_str(char *inStr, short len)
 {
   char *copy = (char *)malloc((len+1) * sizeof(char));
-  for(short i = 0; i < len; i++)
+  if(copy)
     {
-      copy[i] = inStr[i];
+      short i;
+      for(short i = 0; i < len; i++)
+	{
+	  copy[i] = inStr[i];
+	}
+      copy[len] = '\0';
     }
-  copy[len] = '\0';
   return copy;
 }
 
@@ -67,6 +71,11 @@ char **tokenize(char* str)
 {
   int count = count_tokens(str);
   char **tokens = (char **)malloc((count+1) * sizeof(char *));
+  if(!tokens)
+    {
+      return NULL;
+    }
+  
   char *token_start_ptr, *token_end_ptr;
   int token_index = 0;
 

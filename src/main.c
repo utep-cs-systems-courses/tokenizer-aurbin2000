@@ -1,22 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "tokenizer.h"
 #include "history.h"
-
-int strings_equal(const char *str1,  const char *str2)
-{
-  while(*str1 != '\0' && *str2 != '\0')
-    {
-      if(*str1 != *str2)
-	{
-	  return 0;
-	}
-      str1++;
-      str2++;
-    }
-  return(*str1 == *str2);
-}
-
+#include "tokenizer.h"
 
 int main()
 {
@@ -27,9 +12,9 @@ int main()
   while(1)
     {
       printf("Welcome, options are:\n");
-      printf("1. To tokenize a sentence.\n");
-      printf("2. To view hsitory.\n");
-      printf("3. To quit.\n");
+      printf("1. Tokenize a sentence.\n");
+      printf("2. View hsitory.\n");
+      printf("3. Quit.\n");
       printf("Enter your answer: ");
 
       int choice;
@@ -42,7 +27,8 @@ int main()
 	  printf("Enter a sentence: ");
 	  fgets(input, sizeof(input), stdin);
 
-	  for(int i =0; input[i] != '\0'; i++)
+	  int i;
+	  for(i = 0; input[i] != '\0'; i++)
 	    {
 	      if(input[i] == '\n')
 		{
@@ -56,6 +42,8 @@ int main()
 	  print_tokens(tokens);
 
 	  add_history(history, input);
+
+	  free_tokens(tokens);
 	  break;
 
 	case 2:
