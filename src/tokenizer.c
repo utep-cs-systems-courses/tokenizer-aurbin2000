@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "tokenizer.h"
 
 int space_char(char c)
@@ -56,7 +55,10 @@ int count_tokens(char *str)
 char *copy_str(char *inStr, short len)
 {
   char *copy = (char *)malloc((len+1) * sizeof(char));
-  strncpy(copy, inStr, len);
+  for(short i = 0; i < len; i++)
+    {
+      copy[i] = inStr[i];
+    }
   copy[len] = '\0';
   return copy;
 }

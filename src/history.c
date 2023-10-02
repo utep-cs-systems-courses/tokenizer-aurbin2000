@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "history.h"
 #include "tokenizer.h"
 
@@ -13,6 +12,27 @@ List *init_history()
   return history;
 }
 
+int str_length(const char *str)
+{
+  int length = 0;
+  while(str[length] != '\0')
+    {
+      length++;
+    }
+  return length;
+}
+
+char *str_duplicate(const char *str)
+{
+  int length = str_length(str);
+  char *duplicate = (char *)malloc((length + 1) * sizeof(char));
+  for(int i = 0; i <= length; i++)
+    {
+      duplicate[i] = str[i];
+    }
+  return duplicate;
+}
+
 void add_history(List *list, char *str)
 {
   Item *current;
@@ -22,7 +42,14 @@ void add_history(List *list, char *str)
     {
       list->root = (Item *)malloc(sizeof(Item));
       list->root->id = id_tracker++;
-      list->root->str = strdup(str);
+      int length = str_length(str);
+      list->root->str = (char *)malloc((length + 1) * sizeof(char));
+
+      for(int i = 0; i <=length; i++)
+	{
+	  list->root->str[i] = str[i];
+	}
+
       list->root->next = NULL;
     }
   else
@@ -33,7 +60,14 @@ void add_history(List *list, char *str)
 	}
       current->next = (Item *)malloc(sizeof(Item));
       current->next->id = id_tracker;
-      current->next->str = strdup(str);
+      int length = str_length(str);
+      current->next->str = (char *)malloc((length + 1) * sizeof(char));
+
+      for(int i = 0; i <= length; i++)
+	{
+	  current->next->str[i] = str[i];
+	}
+      
       current->next->next = NULL;
     }
 }
