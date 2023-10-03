@@ -1,15 +1,13 @@
-SRC = main.c history.c tokenizer.c
-OBJS = main.o history.o tokenizer.o
-
-CC = gcc
 CFLAGS = -g -O3
 
 all: tokenizer
 
-tokenizer: $(OBJS)
-	cc -o tokenizer $(OBJS) $(CFLAGS)
+tokenizer.o: tokenizer.h tokenizer.c
 
-$(OBJS): history.h tokenizer.h
+history.o: history.h history.c
+
+tokenizer: tokenizer.o history.o
+	gcc -o tokenizer tokenizer.o history.o
 
 clean:
 	rm -f *.o tokenizer

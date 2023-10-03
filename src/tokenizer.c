@@ -1,31 +1,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tokenizer.h"
+#include "history.h"
 
 int space_char(char c)
 {
-  return(c == ' ' || c == '\t');
+  if(c == ' ' || c == '\t')
+  {
+    return 1;
+  }
+  return 0;
 }
 
 int non_space_char(char c)
 {
-  return !space_char(c);
+  if(c != ' ' && c != '\t')
+    {
+      return 1;
+    }
+  return 0;
 }
 
 char *token_start(char *str)
 {
-  while(space_char(*str))
+  while(*str != '\0')
     {
-      str++;
+      if(space_char(*str))
+	{
+	  str = str +1;
+	  continue;
+	}
+      return str;
     }
   return str;
 }
 
 char *token_terminator(char *token)
 {
-  while(non_space_char(*token))
+  while(*token != '\0')
     {
-      token++;
+      if(space_char(*token))
+	{
+	  return token;
+	}
+      token = token +1;
     }
   return token;
 }
@@ -33,86 +51,125 @@ char *token_terminator(char *token)
 int count_tokens(char *str)
 {
   int count = 0;
-  int in_token = 0;
+  str = token_start(str);
 
-  while(*str)
+  while(*str != '\0')
     {
-      if(space_char(*str))
-	{
-	  in_token = 0;
-	}
-      else if(!in_token)
-	{
-	  in_token = 1;
-	  count++;
-	}
-      
-      str++;
+      count = count + 1;
+      str = token_terminator(str);
+      str = token_start(str);
     }
   return count;
 }
 
 char *copy_str(char *inStr, short len)
 {
-  char *copy = (char *)malloc((len+1) * sizeof(char));
-  if(copy)
+  char *newStr = (char *)malloc((len+1) * sizeof(char));
+
+  for(int i = 0; i < len; ++i)
     {
-      short i;
-      for(short i = 0; i < len; i++)
-	{
-	  copy[i] = inStr[i];
-	}
-      copy[len] = '\0';
+      newStr[i] = inStr[i];
     }
-  return copy;
+  newStr[len] = '\0';
+  return newStr;
 }
 
 char **tokenize(char* str)
 {
-  int count = count_tokens(str);
-  char **tokens = (char **)malloc((count+1) * sizeof(char *));
-  if(!tokens)
-    {
-      return NULL;
-    }
-  
-  char *token_start_ptr, *token_end_ptr;
-  int token_index = 0;
+  int numofWords = count_tokens(str);
+  char **tokens = malloc((numofWords + 1) * sizeof(char *));
+  char *tempStr;
 
-  while(*str)
+  for(int i = 0; i < numofWords; ++i)
     {
-      token_start_ptr = token_start(str);
-      token_end_ptr = token_terminator(token_start_ptr);
+      str = token_start(str);
+      int count = 0;
+      tempStr = str;
 
-      if(token_start_ptr != token_end_ptr)
+      while(non_space_char(*tempStr) && *tempStr != '\0')
 	{
-	  tokens[token_index++] = copy_str(token_start_ptr, token_end_ptr - token_start_ptr);
+	  count = count + 1;
+	  tempStr = tempStr + 1;
 	}
-
-      str = token_end_ptr;
+      tokens[i] = copy_str(str, count);
+      str = token_terminator(str);
     }
-
-  tokens[token_index] = NULL;
+  tokens[numofWords] = '\0';
   return tokens;
 }
 	
 void print_tokens(char **tokens)
 {
-  int i = 0;
-  while(tokens[i])
+  int count = 0;
+  while(*tokens)
     {
-      printf("Token[%d]: %s\n", i, tokens[i]);
-      i++;
+      printf("token[%d] = %s\n", count, *tokens);
+      tokens++;
+      count++;
     }
 }
 
 void free_tokens(char **tokens)
 {
-  int i = 0;
-  while(tokens[i])
+  int index = 0;
+  while(tokens[index])
     {
-      free(tokens[i]);
-      i++;
+      free(tokens[index]);
+      index++;
     }
   free(tokens);
+}
+
+int main()
+{
+  char userChoice[10];
+  char userInput[100];
+  int userContinue = 1;
+  List *historyList = init_history();
+  while (userContinue)
+    {
+      printf("Enter 'w' to write a string input, '!h' to see all history records, and '!' followed by a number to see a particular history record:\n");
+      putchar('$');
+      fgets(userChoice, 10, stdin);
+
+      if(*userChoice == 'w')
+	{
+	  printf("Please enter a sentence:\n");
+	  putchar('$');
+	  fgets(userInput, 100, stdin);
+	  
+	  char **tokenizer = tokenize(userInput);
+	  print_tokens(tokenizer);
+	  free_tokens(tokenizer);
+	  
+	  add_history(historyList, userInput);
+	}
+      else if(userChoice[0] == '!')
+	{
+	  if(userChoice[1] == 'h')
+	    {
+	      print_history(historyList);
+	    }
+	  else if(userChoice[1] >= 48 && userChoice[1] <= 57)
+	    {
+	      int userNumber = userChoice[1] - '0';
+	      printf("%s\n", get_history(historyList, userNumber));
+	    }
+	  else if(userChoice[1] == '1')
+	    {
+	      printf("wow");
+	    }
+	}
+      else
+	{
+	  printf("You entered an invalid selection.\n");
+	  userContinue = 0;
+	}
+
+      char *strPoint;
+      strPoint = &userInput[0];
+    }
+
+  free_history(historyList);
+  return 0;
 }
